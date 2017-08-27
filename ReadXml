@@ -1,0 +1,71 @@
+package com.etcxy.prats.delete_pullparser;
+
+import android.util.Log;
+import android.util.Xml;
+
+import org.xmlpull.v1.XmlPullParser;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Created by etcxy@live.cn on 2017/8/27.
+ */
+
+public class readDemo {
+
+    private FileInputStream fis;
+    private List<Message> msgList;
+
+    public void read() {
+        File file = new File("data/data/com.etcxy.prats.delete_pullparser/sms.xml");
+
+        try {
+            fis = new FileInputStream(file);
+            BufferedReader buff = new BufferedReader(new InputStreamReader(fis));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        XmlPullParser xp = Xml.newPullParser();
+
+        try {
+            xp.setInput(fis, "utf-8");
+            int type = xp.getEventType();
+            Message msg = null;
+            while (type != XmlPullParser.END_DOCUMENT) {
+                switch (type) {
+                    case XmlPullParser.START_TAG:
+                        if ("message".equals(xp.getName())) {
+                            msgList = new ArrayList();
+                        } else if ("sms".equals(xp.getName())) {
+                            msg = new Message();
+                        } else if ("name".equals(xp.getName())) {
+                            msg.setName(xp.nextText());
+                        } else if ("key".equals(xp.getName())) {
+                            msg.setKey(xp.nextText());
+                        } else if ("identity".equals(xp.getName())) {
+                            msg.setKey(xp.nextText());
+                        } else if ("address".equals(xp.getName())) {
+                            msg.setKey(xp.nextText());
+                        }
+                        break;
+                    case XmlPullParser.END_TAG:
+                        if ("sms".equals(xp.getName())) {
+                            msgList.add(msg);
+                        }
+                        break;
+                }
+                type = xp.next();
+            }
+            for (Message message : msgList) {
+                Log.v("info", message.toString());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
